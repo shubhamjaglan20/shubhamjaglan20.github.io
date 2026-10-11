@@ -1,0 +1,702 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Shubham Jaglan · Data analyst</title>
+<meta name="description" content="Shubham Jaglan, data analyst at Midtown Software, moving into business and AI. Projects, toolkit, certificates and resume.">
+<meta name="theme-color" content="#0B1022">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%230B1022'/><circle cx='16' cy='16' r='5' fill='%23FFC447'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Geist:wght@400..600&display=swap">
+<link rel="stylesheet" href="scrollcraft.css">
+<style>
+  :root {
+    --sc-canvas:     #0B1022;
+    --sc-surface:    #151C36;
+    --sc-ink:        #F6EFE2;
+    --sc-ink-soft:   #B3B8CD;
+    --sc-accent:     #FFC447;
+    --sc-accent-ink: #1C1404;
+    --sc-font-display: "Bricolage Grotesque", system-ui, sans-serif;
+    --sc-font-text:    "Geist", system-ui, sans-serif;
+    --sc-shadow-color: 230 55% 3%;
+    /* Data colours. They label what the particles are, so they only ever appear
+       as legend dots beside the matching formation. The UI accent stays gold. */
+    --d-ivory: #F6EFE2; --d-teal: #3FD0C0; --d-gold: #FFC447; --d-coral: #FF7A66;
+  }
+
+  /* Poster for a browser with no canvas: a lit sky, not an empty page. */
+  .sc-world {
+    background:
+      radial-gradient(40% 50% at 72% 38%, rgb(255 196 71 / 0.16), transparent 70%),
+      radial-gradient(60% 60% at 20% 70%, rgb(63 208 192 / 0.08), transparent 70%),
+      var(--sc-canvas);
+  }
+  #sky { position: absolute; inset: 0; width: 100%; height: 100%; }
+
+  /* ---- chrome: the map and the one CTA label ------------------------------ */
+  .top {
+    position: fixed; inset: 0 0 auto 0; z-index: var(--sc-z-chrome);
+    display: flex; align-items: flex-start; justify-content: space-between; gap: var(--sc-5);
+    padding: var(--sc-4) var(--sc-gutter) 0;
+    pointer-events: none;
+  }
+  .top > * { pointer-events: auto; }
+
+  .map { width: min(44rem, 60vw); }
+  .map ol { list-style: none; margin: 0; padding: 0; display: flex; }
+  .map li { min-width: 0; }
+  .map button {
+    all: unset; box-sizing: border-box; cursor: pointer; display: block; width: 100%;
+    padding: var(--sc-2) var(--sc-2) var(--sc-2) 0;
+    font-size: 0.75rem; line-height: 1.2; color: var(--sc-ink-soft);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    transition: color var(--sc-d-fast) var(--sc-ease-out);
+  }
+  .map button:focus-visible { outline: 2px solid var(--sc-accent); outline-offset: 2px; border-radius: var(--sc-r-sm); }
+  .map button[aria-current="true"] { color: var(--sc-ink); }
+  @media (hover: hover) and (pointer: fine) { .map button:hover { color: var(--sc-ink); } }
+  .map__t { display: block; height: 2px; margin-top: 6px; margin-right: var(--sc-3); background: var(--sc-hairline); border-radius: 2px; overflow: hidden; }
+  .map__t i { display: block; height: 100%; background: var(--sc-ink-soft); transform-origin: 0 50%; transform: scaleX(0); transition: transform 300ms var(--sc-ease-out); }
+  .map button[aria-current="true"] .map__t i { background: var(--sc-accent); }
+  .map__route { position: relative; height: 1px; background: var(--sc-hairline-strong); margin-bottom: 2px; }
+  .map__you {
+    position: absolute; top: -3px; left: 0; width: 7px; height: 7px; border-radius: 50%;
+    background: var(--sc-accent); translate: -3px 0; will-change: transform;
+  }
+  .map__now { display: none; }
+
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: var(--sc-2);
+    font: 600 var(--sc-t-sm)/1 var(--sc-font-text); letter-spacing: 0.005em;
+    text-decoration: none; white-space: nowrap; border-radius: var(--sc-r-md);
+    transition: transform var(--sc-d-fast) var(--sc-ease-out), background-color var(--sc-d-fast) var(--sc-ease-out), border-color var(--sc-d-fast) var(--sc-ease-out);
+  }
+  .btn:active { transform: scale(0.97); }
+  .btn--ghost {
+    padding: 0.7rem 1rem; color: var(--sc-ink);
+    border: 1px solid var(--sc-hairline-strong);
+    background: color-mix(in oklab, var(--sc-canvas) 70%, transparent);
+  }
+  .btn--gold {
+    padding: 1rem 1.5rem; font-size: var(--sc-t-base);
+    background: var(--sc-accent); color: var(--sc-accent-ink);
+    box-shadow: var(--sc-e2), inset 0 1px 0 rgb(255 255 255 / 0.35);
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .btn--ghost:hover { border-color: var(--sc-ink-soft); background: var(--sc-surface); }
+    .btn--gold:hover { transform: translateY(-1px); background: #FFCE66; }
+  }
+  .btn svg { width: 1em; height: 1em; }
+
+  /* ---- copy --------------------------------------------------------------- */
+  .sc-display { font-weight: 700; }
+  h1, h2, h3, p, ol, ul, dl, dd { margin: 0; }
+  .stack > * + * { margin-top: var(--sc-4); }
+  .stack > h2 + *, .stack > h1 + * { margin-top: var(--sc-5); }
+
+  .hello__name { display: block; font: 600 var(--sc-t-lg)/1.2 var(--sc-font-display); letter-spacing: var(--sc-track-snug); color: var(--sc-ink-soft); margin-bottom: var(--sc-4); }
+  .hello h1 { max-width: 11ch; }
+
+  .dot { display: inline-block; width: 0.55em; height: 0.55em; border-radius: 50%; background: var(--c); margin-right: 0.55em; translate: 0 -0.08em; }
+
+  .moves { list-style: none; padding: 0; display: inline-grid; gap: var(--sc-2); text-align: left; }
+  .moves b, .kit dt, .roles b { color: var(--sc-ink); font-weight: 600; }
+  .moves li, .kit dd, .roles li { color: var(--sc-ink-soft); }
+
+  .roles { list-style: none; padding: 0; display: grid; gap: var(--sc-4); }
+  .roles li { display: grid; grid-template-columns: 6.5rem 1fr; gap: var(--sc-1) var(--sc-4); }
+  .roles__when { font-variant-numeric: tabular-nums; color: var(--sc-accent); font-weight: 600; grid-row: span 2; }
+  .roles__note { grid-column: 2; font-size: var(--sc-t-sm); }
+  .edu { font-size: var(--sc-t-sm); color: var(--sc-ink-soft); padding-top: var(--sc-4); border-top: 1px solid var(--sc-hairline); }
+
+  .proj h3 { font: 700 var(--sc-t-xl)/1.1 var(--sc-font-display); letter-spacing: var(--sc-track-snug); }
+  .tags { font-size: var(--sc-t-sm); color: var(--sc-ink-soft); }
+  .link { color: var(--sc-ink); text-decoration: underline; text-decoration-color: var(--sc-accent); text-underline-offset: 0.25em; }
+  @media (hover: hover) and (pointer: fine) { .link:hover { color: var(--sc-accent); } }
+
+  .kit { display: grid; gap: var(--sc-3); }
+  .kit dd { margin-left: 1.1em; }
+
+  .certs {
+    position: absolute; left: 50%; bottom: clamp(2rem, 8vh, 6rem); translate: -50% 0;
+    width: min(62rem, calc(100vw - 2 * var(--sc-gutter))); text-align: center;
+  }
+  .certs ul {
+    list-style: none; padding: 0; margin-top: var(--sc-5);
+    columns: 3 16rem; column-gap: var(--sc-6); text-align: left;
+    font-size: var(--sc-t-sm); color: var(--sc-ink-soft);
+  }
+  .certs li { break-inside: avoid; padding: 0.2rem 0; }
+  .certs li b { color: var(--sc-ink); font-weight: 600; }
+
+  .aside {
+    position: absolute; left: 50%; top: 30%; translate: -50% -50%;
+    width: min(40rem, calc(100vw - 2 * var(--sc-gutter))); text-align: center;
+    font: 700 var(--sc-t-2xl)/1.08 var(--sc-font-display); letter-spacing: var(--sc-track-tight); text-wrap: balance;
+  }
+
+  /* ---- the finale: the read-back and the one action ----------------------- */
+  .finale {
+    position: absolute; inset: auto var(--sc-gutter) clamp(2rem, 8vh, 6rem);
+    display: grid; grid-template-columns: minmax(0, 30rem) minmax(0, 1fr); gap: var(--sc-8); align-items: end;
+  }
+  .finale__sum { font-size: var(--sc-t-lg); line-height: 1.45; color: var(--sc-ink); text-wrap: pretty; }
+  .finale__links { display: flex; gap: var(--sc-5); font-size: var(--sc-t-sm); }
+  .finale__note { font-size: var(--sc-t-xs); color: var(--sc-ink-soft); }
+  .chart {
+    list-style: none; padding: 0; margin: 0 0 0 auto; width: min(100%, 38rem);
+    display: grid; grid-template-columns: repeat(6, 1fr); gap: var(--sc-4);
+  }
+  .bar { display: grid; justify-items: center; gap: var(--sc-2); }
+  .bar__val { font-size: var(--sc-t-sm); font-variant-numeric: tabular-nums; color: var(--sc-ink); }
+  .bar__col { position: relative; width: 100%; max-width: 4.5rem; height: clamp(110px, 30vh, 280px); border-bottom: 1px solid var(--sc-hairline-strong); }
+  .bar__col i { position: absolute; inset: auto 0 0 0; height: 0; background: color-mix(in oklab, var(--sc-ink) 7%, transparent); border-radius: 4px 4px 0 0; }
+  .bar.is-max .bar__col i { background: color-mix(in oklab, var(--sc-accent) 16%, transparent); }
+  .bar.is-max .bar__val { color: var(--sc-accent); }
+  .bar__lab { font-size: var(--sc-t-xs); color: var(--sc-ink-soft); text-align: center; line-height: 1.25; }
+
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+  @media (max-width: 860px) {
+    .map { width: auto; flex: 1; display: flex; align-items: center; gap: var(--sc-3); }
+    .map ol { position: absolute; inset: 0; }
+    .map__wrap { position: relative; width: 9.5rem; height: 2rem; flex: none; }
+    .map li { flex: 1; }
+    .map button { position: relative; height: 2rem; padding: 0; font-size: 0; }
+    .map button::before { content: ""; position: absolute; left: 0; top: 50%; width: 5px; height: 5px; border-radius: 50%; background: var(--sc-ink-soft); translate: -2px -2px; }
+    .map button[aria-current="true"]::before { background: var(--sc-ink); }
+    .map__t { display: none; }
+    .map__route { position: absolute; left: 0; right: 0; top: 50%; }
+    .map__now { display: block; font-size: var(--sc-t-xs); color: var(--sc-ink); white-space: nowrap; }
+    .btn--ghost { padding: 0.6rem 0.8rem; font-size: var(--sc-t-xs); }
+
+    .sc-display--xl { font-size: var(--sc-t-2xl); }
+    .sc-display--lg { font-size: clamp(1.9rem, 1.4rem + 2.4vw, 2.6rem); }
+    .sc-display--md { font-size: var(--sc-t-xl); }
+    .stack > * + * { margin-top: var(--sc-3); }
+    .stack > h2 + *, .stack > h1 + * { margin-top: var(--sc-4); }
+    .sc-copy, .certs { font-size: var(--sc-t-sm); }
+    .roles { gap: var(--sc-3); }
+    .roles li { grid-template-columns: 4.5rem 1fr; }
+    .proj h3 { font-size: var(--sc-t-lg); }
+    .certs { bottom: clamp(1.5rem, 5vh, 3rem); text-align: left; }
+    .certs ul { columns: 1; margin-top: var(--sc-3); font-size: var(--sc-t-xs); }
+    .certs li { padding: 0.1rem 0; }
+    .finale { inset: 4.5rem var(--sc-gutter) 1.5rem; grid-template-columns: 1fr; gap: var(--sc-5); align-content: end; }
+    .chart { order: -1; margin: 0; width: 100%; gap: var(--sc-2); }
+    .bar__col { height: clamp(70px, 16vh, 140px); }
+    .finale__sum { font-size: var(--sc-t-base); }
+  }
+  @media (max-width: 860px) and (max-height: 700px) {
+    .finale .sc-body { display: none; }
+  }
+</style>
+<noscript><style>
+  .sc-world, .top { display: none; }
+  .sc-world__copy { position: static; }
+  [data-sc-copy] { opacity: 1; position: relative; inset: auto; translate: none; margin: 4rem var(--sc-gutter); }
+</style></noscript>
+</head>
+<body>
+
+<div class="sc-grain" aria-hidden="true"></div>
+
+<header class="top">
+  <nav class="map" aria-label="Map of the page">
+    <div class="map__wrap">
+      <div class="map__route" aria-hidden="true"><span class="map__you"></span></div>
+      <ol>
+        <li><button type="button" data-leg="0">Hello<span class="map__t"><i></i></span></button></li>
+        <li><button type="button" data-leg="1">How I think<span class="map__t"><i></i></span></button></li>
+        <li><button type="button" data-leg="2">Work<span class="map__t"><i></i></span></button></li>
+        <li><button type="button" data-leg="3">Projects<span class="map__t"><i></i></span></button></li>
+        <li><button type="button" data-leg="4">Toolkit<span class="map__t"><i></i></span></button></li>
+        <li><button type="button" data-leg="5">Certificates<span class="map__t"><i></i></span></button></li>
+        <li><button type="button" data-leg="6">Your read<span class="map__t"><i></i></span></button></li>
+      </ol>
+    </div>
+    <span class="map__now" aria-hidden="true">Hello</span>
+  </nav>
+  <a class="btn btn--ghost" href="resume.pdf" download>Download resume</a>
+</header>
+
+<main data-sc-mode="worldflight" data-sc-seam="0.16">
+
+  <div data-sc-world>
+    <canvas id="sky" aria-hidden="true"></canvas>
+    <div data-sc-segment data-sc-w="1.3" data-sc-waypoint="Hello"></div>
+    <div data-sc-segment data-sc-w="1.5" data-sc-waypoint="How I think"></div>
+    <div data-sc-segment data-sc-w="1.5" data-sc-waypoint="Work"></div>
+    <div data-sc-segment data-sc-w="1.8" data-sc-waypoint="Projects"></div>
+    <div data-sc-segment data-sc-w="1.5" data-sc-waypoint="Toolkit"></div>
+    <div data-sc-segment data-sc-w="1.5" data-sc-waypoint="Certificates"></div>
+    <div data-sc-segment data-sc-w="2.4" data-sc-waypoint="Your read"></div>
+  </div>
+
+  <div data-sc-world-copy>
+    <div class="sc-world__scrim sc-scrim sc-scrim--band" aria-hidden="true"></div>
+
+    <section class="sc-copy sc-copy--lead hello" data-sc-copy data-sc-window="hero" aria-label="Hello">
+      <h1 class="sc-display sc-display--xl"><span class="hello__name">Shubham Jaglan</span>I get data to confess.</h1>
+      <p class="sc-body" style="margin-top: var(--sc-5)">Data analyst at Midtown Software in Mohali, now moving into business and AI.</p>
+    </section>
+
+    <section class="sc-copy sc-copy--trail stack" data-sc-copy data-sc-window="0.133 0.228" aria-label="How I think">
+      <h2 class="sc-display sc-display--lg">Messy in. Clear out.</h2>
+      <p class="sc-body" style="margin-left: auto">Data shows up scattered. I sort it into an answer someone can act on, in four moves.</p>
+      <ol class="moves">
+        <li><span class="dot" style="--c: var(--d-ivory)"></span><b>Ask.</b> Find the real question behind the request.</li>
+        <li><span class="dot" style="--c: var(--d-teal)"></span><b>Clean.</b> Fix what's missing, wrong or doubled.</li>
+        <li><span class="dot" style="--c: var(--d-gold)"></span><b>Model.</b> Test what's true, not what's hoped.</li>
+        <li><span class="dot" style="--c: var(--d-coral)"></span><b>Explain.</b> In words a non-analyst can use.</li>
+      </ol>
+    </section>
+
+    <section class="sc-copy sc-copy--lead stack" data-sc-copy data-sc-window="0.263 0.358" aria-label="Work">
+      <h2 class="sc-display sc-display--lg">The path so far.</h2>
+      <ol class="roles">
+        <li><span class="roles__when">2022</span><span><b>Machine Learning Intern</b>, Internship Studio</span><span class="roles__note">Two months of first models.</span></li>
+        <li><span class="roles__when">2024</span><span><b>Data Science Intern</b>, Future Finders</span><span class="roles__note">Six months of data cleaning and analytics.</span></li>
+        <li><span class="roles__when">2024 to now</span><span><b>Data Analyst</b>, Midtown Software</span><span class="roles__note">Full-time in Mohali. Python and Excel, on real business data.</span></li>
+      </ol>
+      <p class="edu">BTech in Computer Science, Chandigarh Group of Colleges, 2020 to 2024.</p>
+    </section>
+
+    <section class="sc-copy sc-copy--trail stack proj" data-sc-copy data-sc-window="0.393 0.455" aria-label="Project: California housing prices">
+      <h2 class="sc-display sc-display--lg">Proof, not promises.</h2>
+      <h3>California housing prices</h3>
+      <p class="sc-body" style="margin-left: auto">An end-to-end machine learning pipeline. Linear regression, a decision tree and a random forest went head to head on cross-validated error. The forest won.</p>
+      <p class="tags">Python · scikit-learn · pandas · feature engineering</p>
+    </section>
+
+    <section class="sc-copy sc-copy--trail stack proj" data-sc-copy data-sc-window="0.452 0.515" aria-label="Project: COVID-19 dashboard">
+      <h3>COVID-19 dashboard</h3>
+      <p class="sc-body" style="margin-left: auto">A Tableau dashboard for exploring how cases and deaths moved, date by date.</p>
+      <p class="tags">Tableau · data visualisation</p>
+      <p><a class="link" href="https://www.kaggle.com/shubhamjaglan001" target="_blank" rel="noopener">More work on Kaggle</a></p>
+    </section>
+
+    <section class="sc-copy sc-copy--lead stack" data-sc-copy data-sc-window="0.550 0.643" aria-label="Toolkit">
+      <h2 class="sc-display sc-display--lg">The toolkit.</h2>
+      <dl class="kit">
+        <div><dt><span class="dot" style="--c: var(--d-gold)"></span>Analysis</dt><dd>SQL, MySQL, Python, Excel</dd></div>
+        <div><dt><span class="dot" style="--c: var(--d-teal)"></span>Visualisation</dt><dd>Power BI, Tableau, dashboards</dd></div>
+        <div><dt><span class="dot" style="--c: var(--d-coral)"></span>Machine learning</dt><dd>scikit-learn, regression, deep learning and computer vision basics</dd></div>
+        <div><dt><span class="dot" style="--c: var(--d-ivory)"></span>AI at work</dt><dd>Prompt engineering, Microsoft Copilot, generative AI for productivity</dd></div>
+      </dl>
+    </section>
+
+    <section class="certs" data-sc-copy data-sc-window="0.679 0.770" aria-label="Certificates">
+      <h2 class="sc-display sc-display--md">Fifteen certificates, one at a time.</h2>
+      <ul>
+        <li><b>Kaggle</b>: Intro to ML, Intermediate ML, Intro to Deep Learning, Computer Vision, ML Explainability</li>
+        <li><b>IBM</b>: Data Science Professional Certificate</li>
+        <li><b>Google</b>: Data Analytics</li>
+        <li><b>Microsoft + LinkedIn</b>: Generative AI Productivity</li>
+        <li><b>HackerRank</b>: SQL (Advanced)</li>
+        <li><b>Codebasics</b>: SQL for Data Science, Python for Data Professionals</li>
+        <li><b>GeeksforGeeks</b>: Applied Data Science</li>
+        <li><b>Internship Studio</b>: Machine Learning Training</li>
+        <li><b>Solitaire Infosystems</b>: Python Training</li>
+        <li><b>National Engineering Olympiad</b></li>
+      </ul>
+    </section>
+
+    <p class="aside" data-sc-copy data-sc-window="0.790 0.862">Wait. While you were reading, I was taking notes.</p>
+
+    <section class="finale" data-sc-copy data-sc-window="finale" aria-label="Your read">
+      <div class="stack">
+        <h2 class="sc-display sc-display--md">Here's how you read this page.</h2>
+        <p class="finale__sum" id="read-sum" aria-live="polite">Keep going and I'll show you.</p>
+        <p class="sc-body">That's the job: notice what people actually do, then say it plainly. Imagine what I'd find in your data.</p>
+        <p><a class="btn btn--gold" href="resume.pdf" download>
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 3v10M5.5 8.5 10 13l4.5-4.5M4 16.5h12"/></svg>Download resume</a></p>
+        <p class="finale__links"><a class="link" href="https://www.linkedin.com/in/shubham-506-jaglan" target="_blank" rel="noopener">LinkedIn</a><a class="link" href="https://www.kaggle.com/shubhamjaglan001" target="_blank" rel="noopener">Kaggle</a></p>
+        <p class="finale__note">Measured in your browser. Nothing was sent or saved.</p>
+      </div>
+      <ol class="chart" id="chart" aria-label="Time you spent at each stop">
+        <li class="bar"><span class="bar__val">·</span><span class="bar__col"><i></i></span><span class="bar__lab">Hello</span></li>
+        <li class="bar"><span class="bar__val">·</span><span class="bar__col"><i></i></span><span class="bar__lab">How I think</span></li>
+        <li class="bar"><span class="bar__val">·</span><span class="bar__col"><i></i></span><span class="bar__lab">Work</span></li>
+        <li class="bar"><span class="bar__val">·</span><span class="bar__col"><i></i></span><span class="bar__lab">Projects</span></li>
+        <li class="bar"><span class="bar__val">·</span><span class="bar__col"><i></i></span><span class="bar__lab">Toolkit</span></li>
+        <li class="bar"><span class="bar__val">·</span><span class="bar__col"><i></i></span><span class="bar__lab">Certificates</span></li>
+      </ol>
+    </section>
+  </div>
+
+  <div data-sc-spacer aria-hidden="true"></div>
+</main>
+
+<script src="scrollcraft.js"></script>
+<script>ScrollCraft.mount(document.body);</script>
+<script>
+/* The sky, the map, and the read-back. Page-local on purpose: the engine only
+   provides the track, the copy windows and the waypoints. */
+(function () {
+  'use strict';
+  var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var fine = matchMedia('(hover: hover) and (pointer: fine)').matches;
+  var TAU = Math.PI * 2;
+  var clamp = function (x, a, b) { return x < a ? a : x > b ? b : x; };
+  var sm = function (x) { x = clamp(x, 0, 1); return x * x * (3 - 2 * x); };
+
+  var root = document.querySelector('[data-sc-mode="worldflight"]');
+  var stage = root.querySelector('[data-sc-world]');
+  var segEls = root.querySelectorAll('[data-sc-segment]');
+  var W = [], C0 = [], T = 0;
+  Array.prototype.forEach.call(segEls, function (s) { var w = parseFloat(s.getAttribute('data-sc-w')); W.push(w); C0.push(T); T += w; });
+  var LEGS = W.length;
+
+  // Where each formation is fully formed, in leg units. Between two of these the
+  // particles fly from one to the next. The last gap is the long one: the peak.
+  var FORM = [[0, 0.82], [1.15, 1.85], [2.15, 2.85], [3.15, 3.85], [4.15, 4.85], [5.12, 5.86], [6.45, 7]];
+  var SNAP_AT = FORM[5][1];
+
+  function legOf(t) { for (var i = LEGS - 1; i >= 0; i--) if (t >= C0[i]) return i; return 0; }
+  function sOf(t) { if (t >= T) return LEGS; var l = legOf(t); return l + (t - C0[l]) / W[l]; }
+  function phase(s) {
+    for (var i = 0; i < LEGS; i++) {
+      if (s <= FORM[i][1]) {
+        if (i === 0 || s >= FORM[i][0]) return { a: i, b: i, m: 0 };
+        return { a: i - 1, b: i, m: (s - FORM[i - 1][1]) / (FORM[i][0] - FORM[i - 1][1]) };
+      }
+    }
+    return { a: LEGS - 1, b: LEGS - 1, m: 0 };
+  }
+
+  // ---- canvas ---------------------------------------------------------------
+  var canvas = document.getElementById('sky');
+  var ctx = canvas.getContext && canvas.getContext('2d');
+  var Wd, Ht, A, cx, cy, wide, R, OY;
+  function OX(side) { return wide ? side * Math.min(0.24 * A, 0.55) : 0; }
+  function size() {
+    var dpr = Math.min(window.devicePixelRatio || 1, 2);
+    Wd = Math.max(innerWidth, 1); Ht = Math.max(innerHeight, 1); A = Wd / Ht; cx = Wd / 2; cy = Ht / 2; wide = Wd > 860;
+    R = wide ? 0.27 : Math.min(0.4 * A, 0.3);
+    OY = wide ? -0.06 : -0.21;
+    if (ctx) { canvas.width = Math.round(Wd * dpr); canvas.height = Math.round(Ht * dpr); ctx.setTransform(dpr, 0, 0, dpr, 0, 0); }
+  }
+  size();
+
+  var seed = 20261011;
+  function rnd() { seed |= 0; seed = seed + 0x6D2B79F5 | 0; var t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }
+
+  var COLORS = ['#F6EFE2', '#3FD0C0', '#FFC447', '#FF7A66'];
+  var N = (Wd < 700 || !fine) ? 700 : 1400;
+  var P = [], rank = [0, 0, 0, 0];
+  for (var i = 0; i < N; i++) {
+    var p = { i: i, a: rnd(), b: rnd(), c: rnd(), d: rnd(), e: rnd(), dl: rnd(), f: rnd() };
+    p.k = Math.floor(p.f * 4) % 4;
+    p.col = p.e < 0.55 ? 0 : p.e < 0.8 ? 2 : p.e < 0.92 ? 1 : 3;
+    p.rk = p.d < 0.6 ? rank[p.k]++ : 0;
+    var u1 = Math.max(p.b, 1e-6), u2 = p.c;
+    p.g = Math.sqrt(-2 * Math.log(u1)) * Math.cos(TAU * u2);
+    P.push(p);
+  }
+  var STARS = [];
+  for (i = 0; i < (N > 700 ? 380 : 220); i++) STARS.push({ x: (rnd() - 0.5) * 4.2, y: (rnd() - 0.5) * 2.4, z: rnd() * 6, tw: rnd() * TAU });
+  var BOKEH = [];
+  for (i = 0; i < 7; i++) BOKEH.push({ x: rnd(), y: rnd() * 1.4, r: 50 + rnd() * 70, a: 0.018 + rnd() * 0.02 });
+
+  // Fifteen certificate stars, oldest to newest, as a wandering line.
+  function certStar(j) {
+    var bw = wide ? Math.min(A * 0.84, 1.9) : A * 0.84, bh = wide ? 0.36 : 0.3, c0 = wide ? -0.2 : -0.27;
+    return [-bw / 2 + (0.03 + j * 0.94 / 14) * bw, c0 + bh * 0.5 * (Math.sin(j * 1.25) * 0.75 + Math.cos(j * 0.55) * 0.25)];
+  }
+  function bump(x, c, w) { var d = (x - c) / w; return Math.exp(-d * d); }
+  function curve(x) { return (0.3 * bump(x, 0.22, 0.07) + 0.6 * bump(x, 0.5, 0.08) + 1.0 * bump(x, 0.78, 0.06)) * 0.92; }
+
+  // Read-back targets: each particle given a cell inside one bar of the chart.
+  var bars = Array.prototype.slice.call(document.querySelectorAll('#chart .bar'));
+  var slot = new Int8Array(N).fill(-1), fx = new Float32Array(N), fy = new Float32Array(N);
+  var barRects = null, maxBar = -1, needAssign = false;
+  function readBarRects() { barRects = bars.map(function (li) { return li.querySelector('i').getBoundingClientRect(); }); }
+  function assign() {
+    readBarRects(); slot.fill(-1);
+    var cap = Math.floor(N * 0.85), pi = 0, area = barRects.reduce(function (t, r) { return t + r.width * r.height; }, 0);
+    // cell size from the particles available, so every bar fills completely
+    var g = Math.max(wide ? 6 : 5, Math.ceil(Math.sqrt(area / cap)) + 1);
+    barRects.forEach(function (r, b) {
+      var cols = Math.max(1, Math.floor(r.width / g)), rows = Math.floor(r.height / g), n = cols * rows;
+      for (var k = 0; k < n && pi < cap; k++, pi++) { slot[pi] = b; fx[pi] = (k % cols + 0.5) / cols; fy[pi] = (Math.floor(k / cols) + 0.5) / rows; }
+    });
+  }
+
+  var o = { x: 0, y: 0, z: 1, a: 1, c: 0, sz: 1 };
+  function dust(p, out) { out.x = (p.a - 0.5) * A * 2.4; out.y = (p.b - 0.5) * 2; out.z = 1.6 + p.c * 2.5; out.a = 0.1; out.c = 0; out.sz = 1; }
+  function form(f, p, u, tm, out) {
+    var ox, oy = OY, x, y, z, ang, rad, j, q;
+    out.sz = 1; out.c = p.col;
+    if (f === 0) {
+      ox = OX(1);
+      ang = p.a * TAU + tm * 0.12 * (0.6 + p.b);
+      rad = R * (0.12 + 0.88 * Math.pow(p.c, 0.8));
+      out.x = ox + Math.cos(ang) * rad; out.y = oy + Math.sin(ang) * rad * 0.38 + (p.d - 0.5) * 0.1 * rad;
+      out.z = 1 + Math.sin(ang) * rad * 0.9; out.a = 0.25 + 0.75 * (1 - p.c);
+    } else if (f === 1) {
+      ox = OX(-1);
+      if (p.d >= 0.6) { dust(p, out); return; }
+      var mo = reduce ? 1 : sm((u - 0.08 - p.dl * 0.15) / 0.3);
+      var cell = R * 0.05, colX = ox + (p.k - 1.5) * R * 0.66, per = 10;
+      var gx = colX + ((p.rk % per) - (per - 1) / 2) * cell, gy = oy + R * 0.85 - Math.floor(p.rk / per) * cell;
+      var rx = ox + (p.a - 0.5) * R * 3.4, ry = oy + (p.b - 0.5) * R * 2.2, rz = 0.75 + p.c * 0.8;
+      out.x = rx + (gx - rx) * mo; out.y = ry + (gy - ry) * mo; out.z = rz + (1 - rz) * mo;
+      out.c = p.k === 0 ? 0 : p.k === 1 ? 1 : p.k === 2 ? 2 : 3; out.a = 0.55 + 0.45 * mo;
+    } else if (f === 2) {
+      // a lit road from under the camera to the horizon, three roles along it
+      ox = OX(1) * 0.55;
+      var tr = reduce ? 0.5 : u;
+      if (p.d < 0.27) { j = Math.floor(p.d / 0.09); q = [0.32, 0.56, 0.8][j]; } else q = p.a;
+      z = 0.5 + q * 3 - tr * 1.8;
+      x = ox + Math.sin(q * 3 + 1) * (wide ? 0.25 : 0.12); y = wide ? 0.35 - q * 0.55 : 0.12 - q * 0.6;
+      if (p.d < 0.27) {
+        var th = p.a * TAU, ph = p.b * Math.PI, rr = (j === 2 ? 0.075 : 0.055) * Math.cbrt(p.c);
+        out.x = x + Math.cos(th) * Math.sin(ph) * rr; out.y = y - 0.06 + Math.cos(ph) * rr; out.z = z + Math.sin(th) * Math.sin(ph) * rr;
+        out.c = j === 2 ? 2 : j === 1 ? 1 : 0; out.a = 1; out.sz = 1.2;
+      } else {
+        out.x = x + (p.b - 0.5) * 0.05; out.y = y + (p.c - 0.5) * 0.006; out.z = z; out.a = 0.45; out.c = 0;
+      }
+    } else if (f === 3) {
+      ox = OX(-1);
+      var Bw = R * 2.6, Bh = R * 1.7, xi = p.a, yi, line = p.d < 0.07;
+      var mo3 = reduce ? (u < 0.5 ? 0 : 1) : sm((u - 0.38 + (p.dl - 0.5) * 0.12) / 0.24);
+      yi = line ? 0.12 + 0.68 * xi : clamp(0.12 + 0.68 * xi + p.g * 0.11, 0.02, 0.9);
+      var y2 = line ? curve(xi) : p.b * curve(xi);
+      var yy = yi + (y2 - yi) * mo3;
+      x = ox - Bw / 2 + xi * Bw; y = oy + Bh / 2 - yy * Bh; z = 1 + (p.c - 0.5) * 0.25 * (1 - mo3);
+      var yaw = reduce ? 0 : (u - 0.5) * 0.7;
+      out.x = ox + (x - ox) * Math.cos(yaw); out.z = z + (x - ox) * Math.sin(yaw); out.y = y;
+      out.c = line ? (mo3 < 0.5 ? 2 : 0) : (mo3 < 0.5 ? 1 : 3); out.a = line ? 1 : 0.7; out.sz = 1.3;
+    } else if (f === 4) {
+      ox = OX(1) * 0.85;
+      var k = p.k, rr4 = R * 1.2 * (0.32 + k * 0.2), tilt = [0.42, -0.55, 0.2, -0.18][k], dir = k % 2 ? -1 : 1;
+      ang = p.a * TAU + dir * (tm * 0.22 + (reduce ? 0 : u * 1.6));
+      var lx = Math.cos(ang) * rr4, ly = Math.sin(ang) * rr4 * 0.38 + (p.b - 0.5) * 0.025, lz = Math.sin(ang) * rr4;
+      out.x = ox + lx * Math.cos(tilt) - ly * Math.sin(tilt); out.y = oy + lx * Math.sin(tilt) + ly * Math.cos(tilt);
+      out.z = 1 + lz * 0.9; out.c = [2, 1, 3, 0][k]; out.a = Math.sin(ang) < 0 ? 1 : 0.55;
+    } else if (f === 5) {
+      if (p.d < 0.12) {
+        j = Math.min(14, Math.floor(p.d / 0.008)); var st = certStar(j);
+        out.x = st[0] + (p.a - 0.5) * 0.014; out.y = st[1] + (p.b - 0.5) * 0.014; out.z = 1; out.a = 1; out.c = 2; out.sz = 1.4;
+      } else if (p.d < 0.36) {
+        j = Math.floor(p.a * 14); var s0 = certStar(j), s1 = certStar(j + 1);
+        var drawn = reduce ? 14 : clamp((u - 0.05) / 0.65, 0, 1) * 14, loc = clamp(drawn - j, 0, 1), al = Math.min(p.b, loc);
+        out.x = s0[0] + (s1[0] - s0[0]) * al; out.y = s0[1] + (s1[1] - s0[1]) * al; out.z = 1;
+        out.a = p.b <= loc ? 0.5 : 0; out.c = 0;
+      } else { dust(p, out); out.a = 0.14; }
+    } else {
+      if (slot[p.i] >= 0 && barRects) {
+        var r = barRects[slot[p.i]];
+        out.x = (r.left + fx[p.i] * r.width - cx) / Ht; out.y = (r.bottom - fy[p.i] * r.height - cy) / Ht; out.z = 1;
+        out.a = 1; out.c = slot[p.i] === maxBar ? 2 : 0; out.sz = 1.1;
+      } else { dust(p, out); }
+    }
+  }
+
+  var A_ = { x: 0, y: 0, z: 1, a: 1, c: 0, sz: 1 }, B_ = { x: 0, y: 0, z: 1, a: 1, c: 0, sz: 1 };
+  var mx = -9999, my = -9999, px = 0, py = 0, pointerOn = false;
+  if (fine && !reduce) {
+    addEventListener('pointermove', function (e) { mx = e.clientX; my = e.clientY; pointerOn = true; }, { passive: true });
+    document.documentElement.addEventListener('pointerleave', function () { pointerOn = false; });
+  }
+
+  function draw(sNow, tm) {
+    if (!ctx) return;
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.globalAlpha = 1; ctx.fillStyle = '#0B1022'; ctx.fillRect(0, 0, Wd, Ht);
+    var tpx = pointerOn ? (mx - cx) / Wd : 0, tpy = pointerOn ? (my - cy) / Ht : 0;
+    px += (tpx - px) * 0.06; py += (tpy - py) * 0.06;
+
+    // atmosphere: slow nebulae, far plane
+    var neb = [[0.22, 0.3, '63,208,192'], [0.78, 0.62, '255,122,102'], [0.55, 0.2, '255,196,71']];
+    for (var n = 0; n < 3; n++) {
+      var nx = (neb[n][0] + 0.04 * Math.sin(sNow * 0.7 + n) - px * 0.02) * Wd, ny = (neb[n][1] + 0.05 * Math.cos(sNow * 0.5 + n * 2) - py * 0.02) * Ht;
+      var gr = ctx.createRadialGradient(nx, ny, 0, nx, ny, Math.max(Wd, Ht) * 0.45);
+      gr.addColorStop(0, 'rgba(' + neb[n][2] + ',0.07)'); gr.addColorStop(1, 'rgba(' + neb[n][2] + ',0)');
+      ctx.fillStyle = gr; ctx.fillRect(0, 0, Wd, Ht);
+    }
+
+    ctx.globalCompositeOperation = 'lighter';
+    // stars: the camera flies through these, so they carry the travel
+    var camZ = reduce ? 0 : sNow * 0.85;
+    ctx.fillStyle = '#F6EFE2';
+    for (var si = 0; si < STARS.length; si++) {
+      var S = STARS[si], zr = ((S.z - camZ) % 6 + 6) % 6;
+      if (zr < 0.12) continue;
+      var sx = cx + (S.x - px * 0.15) * Ht / zr * 0.5, sy = cy + (S.y - py * 0.15) * Ht / zr * 0.5;
+      if (sx < -4 || sx > Wd + 4 || sy < -4 || sy > Ht + 4) continue;
+      var ss = clamp(1.4 / zr, 0.5, 2.6);
+      ctx.globalAlpha = clamp(0.9 / zr, 0.1, 0.85) * (reduce ? 0.8 : 0.75 + 0.25 * Math.sin(tm * 1.7 + S.tw)) * clamp(zr * 2, 0, 1);
+      ctx.fillRect(sx - ss / 2, sy - ss / 2, ss, ss);
+    }
+
+    // focal light: the hero's subject, gone once the points scatter
+    var li = clamp(1 - sNow / 1.05, 0, 1);
+    if (li > 0) {
+      var lx = cx + OX(1) * Ht, ly = cy + OY * Ht, lr = Math.min(Wd, Ht) * (wide ? 0.2 : 0.28);
+      var pulse = reduce ? 1 : 0.88 + 0.12 * Math.sin(tm * 1.3);
+      var lg = ctx.createRadialGradient(lx, ly, 0, lx, ly, lr);
+      lg.addColorStop(0, 'rgba(255,214,120,' + (0.9 * li * pulse) + ')'); lg.addColorStop(0.12, 'rgba(255,196,71,' + (0.35 * li) + ')'); lg.addColorStop(1, 'rgba(255,196,71,0)');
+      ctx.globalAlpha = 1; ctx.fillStyle = lg; ctx.fillRect(lx - lr, ly - lr, lr * 2, lr * 2);
+    }
+
+    // the data points
+    var ph = phase(sNow), push = sNow < 1.2 ? 1 : 0.35, base = wide ? 2 : 1.7;
+    var swirl = ph.b === 6 && ph.a === 5 && !reduce ? 1 - Math.abs(2 * ph.m - 1) : 0;
+    var passes = reduce && ph.a !== ph.b ? 2 : 1;
+    for (var pass = 0; pass < passes; pass++) {
+      for (var k = 0; k < N; k++) {
+        var p = P[k], out;
+        if (passes === 2) {
+          var fi = pass === 0 ? ph.a : ph.b;
+          form(fi, p, clamp(sNow - fi, 0, 1), 0, A_); out = A_;
+          out.a *= pass === 0 ? 1 - ph.m : ph.m;
+        } else if (ph.a === ph.b) {
+          form(ph.a, p, clamp(sNow - ph.a, 0, 1), tm, A_); out = A_;
+        } else {
+          form(ph.a, p, clamp(sNow - ph.a, 0, 1), tm, A_);
+          form(ph.b, p, clamp(sNow - ph.b, 0, 1), tm, B_);
+          var e = sm((ph.m - p.dl * 0.3) / 0.7);
+          A_.x += (B_.x - A_.x) * e; A_.y += (B_.y - A_.y) * e; A_.z += (B_.z - A_.z) * e;
+          A_.a += (B_.a - A_.a) * e; A_.sz += (B_.sz - A_.sz) * e; if (e > 0.5) A_.c = B_.c;
+          if (swirl > 0) {
+            var th = swirl * (2.2 + p.c * 2), r0 = 1 - 0.55 * swirl, ax = A_.x, ay = A_.y - 0.1;
+            A_.x = (ax * Math.cos(th) - ay * Math.sin(th)) * r0; A_.y = (ax * Math.sin(th) + ay * Math.cos(th)) * r0 + 0.1;
+          }
+          out = A_;
+        }
+        if (out.a <= 0.01 || out.z < 0.12) continue;
+        var X = cx + (out.x - px * 0.04 / out.z) * Ht / out.z, Y = cy + (out.y - py * 0.04 / out.z) * Ht / out.z;
+        if (pointerOn) {
+          var dx = X - mx, dy = Y - my, d2 = dx * dx + dy * dy;
+          if (d2 < 8100) { var d = Math.sqrt(d2) || 1, f = (90 - d) * 0.5 * push; X += dx / d * f; Y += dy / d * f; }
+        }
+        if (X < -6 || X > Wd + 6 || Y < -6 || Y > Ht + 6) continue;
+        var sz = clamp(base * out.sz / out.z, 0.8, 4.5);
+        // points about to pass the camera fade out instead of turning into blocks
+        ctx.globalAlpha = clamp(out.a, 0, 1) * 0.9 * clamp((out.z - 0.12) / 0.35, 0, 1);
+        ctx.fillStyle = COLORS[out.c];
+        ctx.fillRect(X - sz / 2, Y - sz / 2, sz, sz);
+      }
+    }
+
+    // near plane: soft bokeh that passes fastest
+    ctx.globalCompositeOperation = 'source-over';
+    for (var bi = 0; bi < BOKEH.length; bi++) {
+      var B = BOKEH[bi], by = (((B.y - (reduce ? 0 : sNow * 0.55)) % 1.4 + 1.4) % 1.4 - 0.2) * Ht, bx = (B.x - px * 0.12) * Wd;
+      var bg = ctx.createRadialGradient(bx, by, 0, bx, by, B.r);
+      bg.addColorStop(0, 'rgba(246,239,226,' + B.a + ')'); bg.addColorStop(1, 'rgba(246,239,226,0)');
+      ctx.globalAlpha = 1; ctx.fillStyle = bg; ctx.fillRect(bx - B.r, by - B.r, B.r * 2, B.r * 2);
+    }
+
+    // what the verification harness reads: the rendered phase, not raw scroll
+    stage.setAttribute('data-sc-verify-state', ph.a + '>' + ph.b + ':' + ph.m.toFixed(2) + ':' + clamp(sNow - ph.b, 0, 1).toFixed(2) + ':' + camZ.toFixed(2));
+    if (sNow >= LEGS - 0.02) stage.setAttribute('data-sc-verify-hold', 'true'); else stage.removeAttribute('data-sc-verify-hold');
+  }
+
+  // ---- the read-back: what this visitor actually did ------------------------
+  var STOP_NAMES = ['the intro', 'How I think', 'Work', 'Projects', 'the toolkit', 'the certificates'];
+  var secs = new Array(LEGS).fill(0), visits = new Array(LEGS).fill(0), seen = new Array(LEGS).fill(false);
+  var curLeg = -1, maxLeg = 0, armed = true;
+  function enterLeg(l) {
+    if (l === curLeg) return;
+    if (seen[l] && l < maxLeg) visits[l]++;
+    else if (!seen[l]) visits[l] = 1;
+    seen[l] = true; curLeg = l; maxLeg = Math.max(maxLeg, l);
+    mapBtns.forEach(function (b, i) { b.setAttribute('aria-current', String(i === l)); });
+    if (mapNow) mapNow.textContent = mapBtns[l].firstChild.textContent;
+  }
+  function fmt(v) { v = Math.round(v); if (v < 60) return v + 's'; var m = Math.floor(v / 60), r = v % 60; return m + 'm ' + (r < 10 ? '0' : '') + r + 's'; }
+  function listJoin(a) { return a.length < 2 ? a.join('') : a.slice(0, -1).join(', ') + ' and ' + a[a.length - 1]; }
+  function snapshot() {
+    var v = secs.slice(0, 6), total = secs.reduce(function (x, y) { return x + y; }, 0);
+    var mxv = Math.max.apply(null, v);
+    var order = [0, 1, 2, 3, 4, 5].filter(function (i) { return v[i] >= 0.5; }).sort(function (a, b) { return v[b] - v[a]; });
+    maxBar = order.length ? order[0] : -1;
+    bars.forEach(function (li, i) {
+      li.querySelector('i').style.height = (mxv > 0 ? v[i] / mxv * 100 : 0) + '%';
+      li.querySelector('.bar__val').textContent = v[i] < 0.5 ? 'skipped' : fmt(v[i]);
+      li.classList.toggle('is-max', i === maxBar);
+    });
+    var out = ['You’ve been here ' + fmt(total) + '.'];
+    if (order.length) out.push('You slowed down most at ' + STOP_NAMES[maxBar] + ' (' + fmt(v[maxBar]) + ').');
+    if (order.length > 1) { var lo = order[order.length - 1]; if (v[lo] < v[maxBar] * 0.5) out.push('You flew past ' + STOP_NAMES[lo] + ' in ' + fmt(v[lo]) + '.'); }
+    var skipped = [1, 2, 3, 4, 5].filter(function (i) { return v[i] < 0.5; }).map(function (i) { return STOP_NAMES[i]; });
+    if (skipped.length >= 4) out.push('You went straight for the end. Fair. The resume is the short version.');
+    else if (skipped.length) out.push('You skipped ' + listJoin(skipped) + '.');
+    var back = -1, most = 1;
+    for (var i = 0; i < 6; i++) if (visits[i] > most) { most = visits[i]; back = i; }
+    if (back >= 0) out.push('You came back to ' + STOP_NAMES[back] + ' ' + (most === 2 ? 'once' : (most - 1) + ' times') + '.');
+    else if (!skipped.length) out.push('Not one second look. Decisive.');
+    document.getElementById('read-sum').textContent = out.join(' ');
+    needAssign = true;
+  }
+
+  // ---- map ------------------------------------------------------------------
+  var mapBtns = Array.prototype.slice.call(document.querySelectorAll('.map button'));
+  var mapBars = mapBtns.map(function (b) { return b.querySelector('.map__t i'); });
+  var you = document.querySelector('.map__you'), mapNow = document.querySelector('.map__now');
+  var LAND = [0, 0.5, 0.5, 0.3, 0.5, 0.48, 1];
+  mapBtns.forEach(function (b, i) {
+    b.parentNode.style.flex = '0 0 ' + (W[i] / T * 100) + '%';
+    b.addEventListener('click', function () {
+      scrollTo({ top: Math.round((C0[i] + W[i] * LAND[i]) * innerHeight), behavior: reduce ? 'auto' : 'smooth' });
+    });
+  });
+  function paintMap(t) {
+    var route = you.parentNode.getBoundingClientRect().width;
+    you.style.transform = 'translateX(' + (clamp(t / T, 0, 1) * route).toFixed(1) + 'px)';
+    var mxs = Math.max.apply(null, secs) || 1;
+    mapBars.forEach(function (el, i) { el.style.transform = 'scaleX(' + (secs[i] / mxs).toFixed(3) + ')'; });
+  }
+
+  // Keyboard focus on a link in a copy block that is not on screen yet: move to
+  // where that block is lit, so focus never lands on something invisible.
+  addEventListener('focusin', function (e) {
+    var blk = e.target.closest && e.target.closest('[data-sc-copy]');
+    if (!blk || parseFloat(getComputedStyle(blk).opacity) > 0.85) return;
+    var w = blk.getAttribute('data-sc-window'), fr;
+    if (w === 'hero') fr = 0; else if (w === 'finale') fr = 1;
+    else { var n = w.split(/\s+/).map(parseFloat); fr = (n[0] + n[1]) / 2; }
+    scrollTo({ top: Math.round(fr * (T + (fr === 1 ? 1 : 0)) * innerHeight), behavior: 'auto' });
+  });
+
+  // ---- loop -----------------------------------------------------------------
+  // innerHeight can read 0 for a moment in embedded panes; never divide by it.
+  var sCur = sOf(scrollY / Math.max(innerHeight, 1)), last = performance.now(), tm = 0, mapTick = 0;
+  function frame(now) {
+    var dt = Math.min((now - last) / 1000, 0.25); last = now;
+    if (!reduce) tm += dt;
+    var t = scrollY / Math.max(innerHeight, 1), sT = sOf(t);
+    sCur = isFinite(sCur) ? sCur + (sT - sCur) * (reduce ? 1 : 0.12) : sT;
+    if (Math.abs(sT - sCur) < 1e-4) sCur = sT;
+
+    var leg = Math.min(legOf(t), LEGS - 1);
+    enterLeg(leg);
+    if (!document.hidden) secs[leg] += dt;
+    if (sCur < 5.5) armed = true;
+    if (armed && sCur >= SNAP_AT - 0.02) { armed = false; snapshot(); }
+    if (needAssign) { needAssign = false; requestAnimationFrame(assign); }
+    if (sCur > 5.5 && barRects) readBarRects();
+
+    draw(sCur, tm);
+    if ((mapTick += dt) > 0.2) { mapTick = 0; paintMap(t); }
+    requestAnimationFrame(frame);
+  }
+  addEventListener('resize', function () { size(); if (maxBar !== -1 || !armed) needAssign = true; }, { passive: true });
+
+  // The engine sizes the scroll track once at mount; a zero-height window at
+  // that moment leaves the page with no track. One resize fixes it.
+  function relayout() { dispatchEvent(new Event('resize')); }
+  addEventListener('load', relayout);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(relayout);
+
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
